@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="Options">
+        <EditTextPreference
+            android:title="Website for Words"
+            android:summary="Specify a URL from which to load words"
+            android:defaultValue="http://cnn.com"
+            android:key="url"></EditTextPreference>
+        <EditTextPreference
+            android:title="Username"
+            android:summary="Enter a username for the High Score"
+            android:key="username"></EditTextPreference>
+        <Preference
+            android:title="Reset High Score"
+            android:key="reset"></Preference>
+    </PreferenceCategory>
+
+</PreferenceScreen>
