@@ -27,13 +27,13 @@ public class Game extends Activity implements View.OnClickListener{
     String guessText;
     ImageView image;
     TextView text;
-    Button guess;
+    Button guess, restart;
     int error;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_game);
+        setContentView(R.layout.activity_game2);
         letters.add((Button) findViewById(R.id.a));
         letters.add((Button) findViewById(R.id.b));
         letters.add((Button) findViewById(R.id.c));
@@ -60,12 +60,16 @@ public class Game extends Activity implements View.OnClickListener{
         letters.add((Button) findViewById(R.id.x));
         letters.add((Button) findViewById(R.id.y));
         letters.add((Button) findViewById(R.id.z));
+        letters.get(letters.size()-2).setWidth(letters.get(0).getWidth());
+        letters.get(letters.size()-1).setWidth(letters.get(0).getWidth());
         for(Button b: letters){
             b.setOnClickListener(this);
         }
         guess = (Button) findViewById(R.id.guess);
         image = (ImageView) findViewById(R.id.image);
         text = (TextView) findViewById(R.id.text);
+        restart = (Button) findViewById(R.id.restart);
+        restart.setOnClickListener(this);
         guess.setOnClickListener(this);
         image.setOnClickListener(this);
         loadWords();
@@ -74,11 +78,13 @@ public class Game extends Activity implements View.OnClickListener{
 
     @Override
     public void onPause(){
+        super.onPause();
         save();
     }
 
     @Override
     public void onDestroy(){
+        super.onDestroy();
         save();
     }
 
@@ -99,6 +105,10 @@ public class Game extends Activity implements View.OnClickListener{
             Intent i = new Intent(this, Options.class);
             startActivity(i);
             return true;
+        }else if(id == R.id.action_list){
+            Intent i = new Intent(this, WordList.class);
+            startActivity(i);
+            return true;
         }else if(id == R.id.action_score){
             Intent i = new Intent(this, HighScore.class);
             startActivity(i);
@@ -116,6 +126,8 @@ public class Game extends Activity implements View.OnClickListener{
         }else if(view.equals(guess) && error < 6){
             guessText = "";
             guessDialog();
+        }else if(view.equals(restart)) {
+            restart();
         }else{
         for(Button b: letters){
             if(view.equals(b) && error < 6){
@@ -221,12 +233,15 @@ public class Game extends Activity implements View.OnClickListener{
         for(String s : logic.getUsed()){
             used += s;
         }
-        PreferenceManager.getDefaultSharedPreferences(this).edit().putString("used", used).commit();
-        PreferenceManager.getDefaultSharedPreferences(this).edit().putString("word", logic.getWord()).commit();
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPrefs.edit().putString("used", used).commit();
+        sharedPrefs.edit().putString("word", logic.getWord()).commit();
+        System.out.println("save complete");
     }
 
     public void load(){
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
         logic.setWord(sharedPrefs.getString("word", ""));
         String[] usedLetters = sharedPrefs.getString("used", "").split("-");
         ArrayList<String> used = new ArrayList();
@@ -234,14 +249,20 @@ public class Game extends Activity implements View.OnClickListener{
             used.add(s);
         }
         logic.setUsed(used);
+
+        String[] words = sharedPrefs.getString("possibleWords", "").split("-");
+        ArrayList<String> possibleWords = new ArrayList();
+        for(String s : words){
+            possibleWords.add(s);
+        }
+        logic.setPossibleWords(possibleWords);
     }
 
     public void loadWords(){
-        String url = PreferenceManager.getDefaultSharedPreferences(this).getString("url", "");
-        logic.url = "http://cnn.com";
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String url = sharedPrefs.getString("url", "");
         try {
-            logic.getWords();
-            System.out.println("words loaded: " + logic.getPossibleWords());
+            logic.getWords("http://cnn.com", getApplicationContext());
         }catch(Exception e){
             e.printStackTrace();
         }

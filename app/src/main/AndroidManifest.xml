@@ -26,6 +26,9 @@
             android:label="Options">
             </activity>
         <activity
+            android:name=".WordList"
+            android:label="Word List" />
+        <activity
             android:name=".HighScore"
             android:label="High Score">
         </activity>

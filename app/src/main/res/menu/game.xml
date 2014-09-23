@@ -6,8 +6,13 @@
         android:orderInCategory="100"
         android:showAsAction="never" />
 
+    <item android:id="@+id/action_list"
+        android:title="Word List"
+        android:orderInCategory="99"
+        android:showAsAction="never" />
+
     <item android:id="@+id/action_score"
         android:title="High Score"
-        android:orderInCategory="99"
+        android:orderInCategory="98"
         android:showAsAction="never"/>
 </menu>

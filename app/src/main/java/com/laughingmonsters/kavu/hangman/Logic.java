@@ -1,9 +1,10 @@
 package com.laughingmonsters.kavu.hangman;
 
+import android.content.Context;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
@@ -18,12 +19,10 @@ public class Logic {
     ArrayList<String> possibleWords = new ArrayList<String>();
     ArrayList<String> used;
     String word;
-    public static String url;
     public boolean complete;
 
     public Logic (){
         used = new ArrayList<String>();
-        //possibleWords.add("word");
     }
 
     public Logic(String word, String usedLetters){
@@ -80,29 +79,28 @@ public class Logic {
         return visibleWord;
     }
 
-    public void getWordsFromURL(String url) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(new URL(url).openStream()));
-        StringBuilder sb = new StringBuilder();
-        String line = br.readLine();
-        while (line != null) {
-            sb.append(line + "\n");
-            line = br.readLine();
-        }
-        String data = sb.toString();
-        data = data.replaceAll("<.+?>", " ").toLowerCase().replaceAll("[^a-zæøå]", " ");
-
-        possibleWords.clear();
-        possibleWords.addAll(new HashSet<String>(Arrays.asList(data.split(" "))));
-    }
-
-    public void getWords() throws Exception {
+    public void getWords(String wordURL, final Context context) throws Exception {
+        final String url = wordURL;
         System.out.println("url is: " + url);
         AsyncTask task = new AsyncTask() {
 
             @Override
             protected Object doInBackground(Object[] objects) {
                 try {
-                    getWordsFromURL(url);
+                    BufferedReader br = new BufferedReader(new InputStreamReader(new URL(url).openStream()));
+                    StringBuilder sb = new StringBuilder();
+                    String line = br.readLine();
+                    while (line != null) {
+                        if(line.length() > 4){
+                        sb.append(line + "\n");
+                        }
+                        line = br.readLine();
+                    }
+                    String data = sb.toString();
+                    data = data.replaceAll("<.+?>", " ").toLowerCase().replaceAll("[^a-zæøå]", " ");
+
+                    possibleWords.clear();
+                    possibleWords.addAll(new HashSet<String>(Arrays.asList(data.split(" "))));
                 }catch(Exception e){
                     e.printStackTrace();
                 }
@@ -111,6 +109,11 @@ public class Logic {
 
             @Override
             protected void onPostExecute(Object object){
+                String words = "";
+                for(String s : possibleWords){
+                    words += s + "-";
+                }
+                PreferenceManager.getDefaultSharedPreferences(context).edit().putString("possibleWords", words).commit();
                 System.out.println("Words have been loaded");
             }
         };
@@ -126,4 +129,6 @@ public class Logic {
     public void setUsed(ArrayList<String> used){ this.used = used; }
 
     public ArrayList<String> getPossibleWords(){ return possibleWords; }
+
+    public void setPossibleWords(ArrayList<String> possibleWords) { this.possibleWords = possibleWords; }
 }
