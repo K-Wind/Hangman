@@ -107,7 +107,7 @@ public class Game extends Activity implements View.OnClickListener{
             return true;
         }else if(id == R.id.action_list){
             Intent i = new Intent(this, WordList.class);
-            startActivity(i);
+            startActivityForResult(i, 1);
             return true;
         }else if(id == R.id.action_score){
             Intent i = new Intent(this, HighScore.class);
@@ -265,6 +265,17 @@ public class Game extends Activity implements View.OnClickListener{
             logic.getWords("http://cnn.com", getApplicationContext());
         }catch(Exception e){
             e.printStackTrace();
+        }
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode,
+                                    Intent data) {
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
+                String newWord = data.getStringExtra("newWord");
+                logic.setWord(newWord);
+                text.setText(logic.updateWord());
+            }
         }
     }
 }

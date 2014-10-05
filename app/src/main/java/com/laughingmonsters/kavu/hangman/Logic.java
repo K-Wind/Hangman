@@ -38,6 +38,7 @@ public class Logic {
         word = possibleWords.get(new Random().nextInt(possibleWords.size()));
         used.clear();
         complete = false;
+        updateWord();
     }
 
     public boolean guessLetter(String guess){
@@ -122,7 +123,7 @@ public class Logic {
 
     public String getWord(){ return word; }
 
-    public void setWord(String word){ this.word = word; }
+    public void setWord(String word){ this.word = word; used.clear(); complete = false;}
 
     public ArrayList<String> getUsed(){ return used; }
 

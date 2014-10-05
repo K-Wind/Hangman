@@ -1,6 +1,7 @@
 package com.laughingmonsters.kavu.hangman;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
@@ -27,7 +28,10 @@ public class WordList extends Activity{
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-
+            Intent result = new Intent();
+                result.putExtra("newWord", (String)list.getItemAtPosition(position));
+                setResult(Activity.RESULT_OK, result);
+                finish();
             }
         });
     }
