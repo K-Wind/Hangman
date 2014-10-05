@@ -19,20 +19,21 @@ public class WordList extends Activity{
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
-        //list = (ListView) findViewById(R.id.listView);
+
         loadList();
-        list = new ListView(this);
+        System.out.println(pWords.toString().length());
+        list = (ListView) findViewById(R.id.list);
+        list.setAdapter(new ArrayAdapter(this, R.layout.layout_list, R.id.word, pWords));
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 
             }
         });
-        list.setAdapter(new ArrayAdapter(this, R.layout.layout_list, R.id.word, pWords));
     }
 
     public void loadList(){
         String words = PreferenceManager.getDefaultSharedPreferences(this).getString("possibleWords", "");
-        pWords = words.split(" ");
+        pWords = words.split("-");
     }
 }
