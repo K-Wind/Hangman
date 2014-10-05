@@ -6,11 +6,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -20,10 +26,11 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 
-public class Game extends Activity implements View.OnClickListener{
+public class Game extends Activity implements View.OnClickListener, SensorEventListener{
     ArrayList<Button> letters = new ArrayList<Button>();
     HighScore score = new HighScore();
     Logic logic = new Logic();
+    Sensor sensor;
     String guessText;
     ImageView image;
     TextView text;
@@ -138,6 +145,12 @@ public class Game extends Activity implements View.OnClickListener{
         }
     }
 
+    public void startSensor(){
+        SensorManager sMan = (SensorManager) getSystemService(SENSOR_SERVICE);
+        sensor = sMan.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        sMan.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI);
+    }
+
     public void guessLetter(String guess){
         if(logic.guessLetter(guess)){
             correct();
@@ -187,6 +200,15 @@ public class Game extends Activity implements View.OnClickListener{
             CharSequence text = "You win! \n Press the image to play again";
             int duration = Toast.LENGTH_SHORT;
 
+            AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
+            anim.setDuration(200);
+            anim.setRepeatCount(4);
+            anim.setRepeatMode(Animation.REVERSE);
+            for(Button b : letters){
+                b.startAnimation(anim);
+            }
+            restart.startAnimation(anim);
+            guess.startAnimation(anim);
             Toast toast = Toast.makeText(context, text, duration);
             toast.show();
         }
@@ -277,5 +299,20 @@ public class Game extends Activity implements View.OnClickListener{
                 text.setText(logic.updateWord());
             }
         }
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        if(sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER){
+            double sum = Math.abs(sensorEvent.values[0]) + Math.abs(sensorEvent.values[1])+ Math.abs(sensorEvent.values[2]);
+            if (sum > 3 * SensorManager.GRAVITY_EARTH){
+                restart();
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
     }
 }
